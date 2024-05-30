@@ -1,19 +1,21 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from '../pages/HomePage';
-import LoginPage from '../pages/LoginPage';
-import ManageUsersPage from '../pages/ManageUsersPage';
-import Header from '../components/Layout/Header';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LoginForm from "../components/Auth/LoginForm";
+import HomePage from "../pages/HomePage";
+import SetupPage from "../pages/SetupPage";
+import ManageUsersPage from "../pages/ManageUsersPage";
+import PrivateRoute from "./PrivateRoute";
 
 const AppRoutes: React.FC = () => {
   return (
     <Router>
-      <Header />
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/manage-users" element={<ManageUsersPage />} />
-        <Route path="/logout" element={<HomePage />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/" element={<PrivateRoute />}>
+          <Route path="home" element={<HomePage />} />
+          <Route path="setup" element={<SetupPage />} />
+          <Route path="manage-users" element={<ManageUsersPage />} />
+        </Route>
       </Routes>
     </Router>
   );
