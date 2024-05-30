@@ -5,10 +5,12 @@ import HomePage from "../pages/HomePage";
 import SetupPage from "../pages/SetupPage";
 import ManageUsersPage from "../pages/ManageUsersPage";
 import PrivateRoute from "./PrivateRoute";
+import Header from "../components/Layout/Header";
 
 const AppRoutes: React.FC = () => {
   return (
     <Router>
+      <Header />
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route path="/" element={<PrivateRoute />}>
@@ -22,5 +24,3 @@ const AppRoutes: React.FC = () => {
 };
 
 export default AppRoutes;
-
-export {};

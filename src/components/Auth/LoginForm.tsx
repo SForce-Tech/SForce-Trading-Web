@@ -4,6 +4,14 @@ import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { fetchPublicKey } from "../../api";
 import JSEncrypt from "jsencrypt";
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Alert,
+} from "@mui/material";
 
 // Function to encrypt the password using the public key
 function encryptPassword(password: string, publicKeyPem: string) {
@@ -63,33 +71,51 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="login-form">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
+    <Container maxWidth="xs">
+      <Box display="flex" flexDirection="column" alignItems="center" mt={8}>
+        <Typography component="h1" variant="h5">
+          Login
+        </Typography>
+        {error && <Alert severity="error">{error}</Alert>}
+        <Box component="form" onSubmit={handleLogin} mt={1}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
             id="username"
+            label="Username"
+            name="username"
+            autoComplete="username"
+            autoFocus
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            required
           />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
             type="password"
             id="password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
-        </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit">Login</button>
-      </form>
-    </div>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Login
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 

@@ -1,28 +1,35 @@
-import React, { useState } from 'react';
-import CreateUser from '../components/Users/CreateUser';
-import UserList from '../components/Users/UserList';
-import UserSearch from '../components/Users/UserSearch';
+import React, { useState } from "react";
+import { Container, Typography, Tabs, Tab, Box } from "@mui/material";
+import CreateUser from "../components/Users/CreateUser";
+import UserList from "../components/Users/UserList";
+import UserSearch from "../components/Users/UserSearch";
 // import Permissions from '../components/Users/Permissions';
 
 const ManageUsersPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'search' | 'list' | 'create' | 'permissions'>('list');
+  const [activeTab, setActiveTab] = useState(0);
+
+  const handleTabChange = (event: React.ChangeEvent<{}>, newIndex: number) => {
+    setActiveTab(newIndex);
+  };
 
   return (
-    <div>
-      <h2>Manage Users</h2>
-      <nav>
-        <button onClick={() => setActiveTab('search')}>Search Users</button>
-        <button onClick={() => setActiveTab('list')}>List Users</button>
-        <button onClick={() => setActiveTab('create')}>Create Users</button>
-        <button onClick={() => setActiveTab('permissions')}>Permissions</button>
-      </nav>
-      <div>
-        {activeTab === 'search' && <UserSearch />}
-        {activeTab === 'list' && <UserList />}
-        {activeTab === 'create' && <CreateUser />}
-        {/* {activeTab === 'permissions' && <Permissions />} */}
-      </div>
-    </div>
+    <Container>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Manage Users
+      </Typography>
+      <Tabs value={activeTab} onChange={handleTabChange}>
+        <Tab label="List Users" />
+        <Tab label="Search Users" />
+        <Tab label="Create User" />
+        <Tab label="Permissions" />
+      </Tabs>
+      <Box mt={3}>
+        {activeTab === 0 && <UserList />}
+        {activeTab === 1 && <UserSearch />}
+        {activeTab === 2 && <CreateUser />}
+        {/* {activeTab === 3 && <Permissions />} */}
+      </Box>
+    </Container>
   );
 };
 
