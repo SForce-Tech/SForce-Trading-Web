@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { fetchPublicKey } from "../../api";
 import JSEncrypt from "jsencrypt";
@@ -25,7 +24,7 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [publicKey, setPublicKey] = useState<string | null>(null);
-  const { setAuthData } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,21 +47,10 @@ const LoginForm: React.FC = () => {
         throw new Error("Public key not loaded");
       }
       const encryptedPassword = encryptPassword(password, publicKey);
-      const response = await axios.post(
-        "https://localhost:8443/api/users/login",
-        {
-          username,
-          password: encryptedPassword,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      sessionStorage.setItem("token", response.data);
-      setAuthData({ token: response.data });
+      if (!encryptedPassword) {
+        throw new Error("Password encryption failed");
+      }
+      await login(username, encryptedPassword);
       navigate("/home");
     } catch (err) {
       setError("Login failed. Please check your username and password.");
