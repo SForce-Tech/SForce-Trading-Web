@@ -44,6 +44,17 @@ export const createUser = async (user: any) => {
   return response.data;
 };
 
+export const updateUser = async (user: any) => {
+  console.log("Updating user:", user);
+
+  const response = await apiClient.put("/users/update", user);
+  return response.data;
+};
+
+export const deleteUser = async (userId: number) => {
+  await apiClient.delete(`/users/delete/${userId}`);
+};
+
 // Fetch the public key from the server
 export const fetchPublicKey = async () => {
   const response = await axios.get("https://localhost:8443/api/public-key");
