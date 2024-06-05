@@ -10,11 +10,9 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config) => {
-    const username = sessionStorage.getItem("username");
-    const password = sessionStorage.getItem("password");
-    if (username && password) {
-      const token = btoa(`${username}:${password}`);
-      config.headers.Authorization = `Basic ${token}`;
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
