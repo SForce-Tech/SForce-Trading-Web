@@ -57,6 +57,11 @@ export const deleteUser = async (userId: number) => {
 
 // Fetch the public key from the server
 export const fetchPublicKey = async () => {
-  const response = await axios.get("https://localhost:8443/api/public-key");
+  const response = await apiClient.get("/public-key");
   return response.data;
+};
+
+export const logout = async () => {
+  await apiClient.post("/logout");
+  sessionStorage.removeItem("token");
 };
