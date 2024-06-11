@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/components/Users/UserList.tsx
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Container,
   Typography,
@@ -12,51 +13,78 @@ import {
   CircularProgress,
   Box,
   IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
-  TextField,
   Snackbar,
   Alert,
 } from "@mui/material";
-import { getAllUsers, deleteUser, updateUser } from "../../api";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { User } from "../../types/User";
+import useApi from "../../hooks/useApi";
+import GlobalError from "../Error/GlobalError";
+import { updateUser, deleteUser } from "../../api"; // Directly import these functions
+import EditUserDialog from "./EditUserDialog";
+import DeleteUserDialog from "./DeleteUserDialog";
 
 const UserList: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const apiConfig = useMemo(
+    () => ({
+      method: "GET",
+      url: "/users/listAll",
+    }),
+    []
+  );
+
+  const { data: users, error, loading, fetchData } = useApi<User[]>(apiConfig);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "error"
   );
+  const [globalError, setGlobalError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string;
+  }>({});
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const usersData = await getAllUsers();
-        setUsers(usersData);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to fetch users");
-        setSnackbarMessage("Failed to fetch users");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        setLoading(false);
-        console.error("Fetch users error:", err);
-      }
-    };
-    fetchUsers();
-  }, []);
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (error) {
+      setGlobalError(error);
+    }
+  }, [error]);
+
+  const validateFields = (user: User): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    // Validate email
+    if (!user.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      errors.email = "Invalid email format";
+    }
+
+    // Validate phone number (simple example, you might need a more complex validation)
+    if (user.phone && !user.phone.match(/^\d{10}$/)) {
+      errors.phone = "Phone number should be 10 digits";
+    }
+
+    // Validate required fields
+    if (!user.firstName) {
+      errors.firstName = "First name is required";
+    }
+    if (!user.lastName) {
+      errors.lastName = "Last name is required";
+    }
+    if (!user.username) {
+      errors.username = "Username is required";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleEdit = (user: User) => {
     setSelectedUser(user);
@@ -70,12 +98,15 @@ const UserList: React.FC = () => {
 
   const handleEditSubmit = async () => {
     if (!selectedUser) return;
+
+    // Validate fields before submitting
+    if (!validateFields(selectedUser)) {
+      return;
+    }
+
     try {
       await updateUser(selectedUser);
-      const updatedUsers = users.map((user) =>
-        user.id === selectedUser.id ? selectedUser : user
-      );
-      setUsers(updatedUsers);
+      fetchData();
       setOpenEditDialog(false);
       setSnackbarMessage("User updated successfully");
       setSnackbarSeverity("success");
@@ -92,8 +123,7 @@ const UserList: React.FC = () => {
     if (!selectedUser || selectedUser.id === undefined) return;
     try {
       await deleteUser(selectedUser.id);
-      const updatedUsers = users.filter((user) => user.id !== selectedUser.id);
-      setUsers(updatedUsers);
+      fetchData();
       setOpenDeleteDialog(false);
       setSnackbarMessage("User deleted successfully");
       setSnackbarSeverity("success");
@@ -123,16 +153,6 @@ const UserList: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Container>
-        <Typography color="error" variant="h6">
-          {error}
-        </Typography>
-      </Container>
-    );
-  }
-
   return (
     <Container>
       <Typography variant="h6" gutterBottom>
@@ -152,191 +172,54 @@ const UserList: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.firstName}</TableCell>
-                <TableCell>{user.lastName}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.phone}</TableCell>
-                <TableCell>{`${user.addressLine1} ${user.addressLine2}, ${user.city}, ${user.state} ${user.zipCode}, ${user.country}`}</TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleEdit(user)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton onClick={() => handleDelete(user)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+            {users &&
+              users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.firstName}</TableCell>
+                  <TableCell>{user.lastName}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.username}</TableCell>
+                  <TableCell>{user.phone}</TableCell>
+                  <TableCell>{`${user.addressLine1} ${user.addressLine2}, ${user.city}, ${user.state} ${user.zipCode}, ${user.country}`}</TableCell>
+                  <TableCell>
+                    <IconButton onClick={() => handleEdit(user)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(user)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* Edit Dialog */}
+      {/* Edit User Dialog */}
       {selectedUser && (
-        <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
-          <DialogTitle>Edit User</DialogTitle>
-          <DialogContent>
-            <TextField
-              label="First Name"
-              name="firstName"
-              value={selectedUser.firstName}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, firstName: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-              required
-            />
-            <TextField
-              label="Last Name"
-              name="lastName"
-              value={selectedUser.lastName}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, lastName: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-              required
-            />
-            <TextField
-              label="Email"
-              name="email"
-              type="email"
-              value={selectedUser.email}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, email: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-              required
-            />
-            <TextField
-              label="Username"
-              name="username"
-              value={selectedUser.username}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, username: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-              required
-            />
-            <TextField
-              label="Phone"
-              name="phone"
-              value={selectedUser.phone}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, phone: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-            />
-            <TextField
-              label="Address Line 1"
-              name="addressLine1"
-              value={selectedUser.addressLine1}
-              onChange={(e) =>
-                setSelectedUser({
-                  ...selectedUser,
-                  addressLine1: e.target.value,
-                })
-              }
-              margin="normal"
-              fullWidth
-            />
-            <TextField
-              label="Address Line 2"
-              name="addressLine2"
-              value={selectedUser.addressLine2}
-              onChange={(e) =>
-                setSelectedUser({
-                  ...selectedUser,
-                  addressLine2: e.target.value,
-                })
-              }
-              margin="normal"
-              fullWidth
-            />
-            <TextField
-              label="City"
-              name="city"
-              value={selectedUser.city}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, city: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-            />
-            <TextField
-              label="State"
-              name="state"
-              value={selectedUser.state}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, state: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-            />
-            <TextField
-              label="Zip Code"
-              name="zipCode"
-              value={selectedUser.zipCode}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, zipCode: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-            />
-            <TextField
-              label="Country"
-              name="country"
-              value={selectedUser.country}
-              onChange={(e) =>
-                setSelectedUser({ ...selectedUser, country: e.target.value })
-              }
-              margin="normal"
-              fullWidth
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenEditDialog(false)} color="secondary">
-              Cancel
-            </Button>
-            <Button onClick={handleEditSubmit} color="primary">
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <EditUserDialog
+          open={openEditDialog}
+          onClose={() => setOpenEditDialog(false)}
+          user={selectedUser}
+          onChange={(e) =>
+            setSelectedUser({
+              ...selectedUser,
+              [e.target.name]: e.target.value,
+            })
+          }
+          onSubmit={handleEditSubmit}
+          validationErrors={validationErrors}
+        />
       )}
 
-      {/* Delete Dialog */}
+      {/* Delete User Dialog */}
       {selectedUser && (
-        <Dialog
+        <DeleteUserDialog
           open={openDeleteDialog}
           onClose={() => setOpenDeleteDialog(false)}
-        >
-          <DialogTitle>Delete User</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Are you sure you want to delete {selectedUser.firstName}{" "}
-              {selectedUser.lastName}?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => setOpenDeleteDialog(false)}
-              color="secondary"
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleDeleteConfirm} color="primary">
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
+          user={selectedUser}
+          onConfirm={handleDeleteConfirm}
+        />
       )}
 
       {/* Snackbar for notifications */}
@@ -349,6 +232,7 @@ const UserList: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+      <GlobalError error={globalError} onClose={() => setGlobalError(null)} />
     </Container>
   );
 };

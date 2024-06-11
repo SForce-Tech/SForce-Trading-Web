@@ -21,6 +21,8 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+export default apiClient; // Exporting as default
+
 export const login = async (
   username: string,
   password: string

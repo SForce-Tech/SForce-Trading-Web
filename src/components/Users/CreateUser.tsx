@@ -1,8 +1,17 @@
 // src/components/Users/CreateUser.tsx
 import React, { useState } from "react";
-import { TextField, Button, Container, Typography, Box } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import { createUser } from "../../api";
 import { CreateUserDTO } from "../../types/User";
+import GlobalError from "../Error/GlobalError";
 
 const CreateUser: React.FC = () => {
   const [user, setUser] = useState<CreateUserDTO>({
@@ -20,18 +29,88 @@ const CreateUser: React.FC = () => {
     country: "",
   });
 
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string;
+  }>({});
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "error"
+  );
+  const [globalError, setGlobalError] = useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
+  const validateFields = (user: CreateUserDTO): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    // Validate email
+    if (!user.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      errors.email = "Invalid email format";
+    }
+
+    // Validate phone number (simple example, you might need a more complex validation)
+    if (user.phone && !user.phone.match(/^\d{10}$/)) {
+      errors.phone = "Phone number should be 10 digits";
+    }
+
+    // Validate required fields
+    if (!user.firstName) {
+      errors.firstName = "First name is required";
+    }
+    if (!user.lastName) {
+      errors.lastName = "Last name is required";
+    }
+    if (!user.username) {
+      errors.username = "Username is required";
+    }
+    if (!user.password) {
+      errors.password = "Password is required";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Validate fields before submitting
+    if (!validateFields(user)) {
+      return;
+    }
+
     try {
       await createUser(user);
-      // handle success (e.g., show a success message, clear form, etc.)
+      setSnackbarMessage("User created successfully");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      // Clear form after successful creation
+      setUser({
+        firstName: "",
+        lastName: "",
+        email: "",
+        username: "",
+        password: "",
+        phone: "",
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        country: "",
+      });
     } catch (error) {
-      // handle error (e.g., show an error message)
+      setSnackbarMessage("Failed to create user");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      console.error("Create user error:", error);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -48,6 +127,8 @@ const CreateUser: React.FC = () => {
           margin="normal"
           fullWidth
           required
+          error={!!validationErrors.firstName}
+          helperText={validationErrors.firstName}
         />
         <TextField
           label="Last Name"
@@ -57,6 +138,8 @@ const CreateUser: React.FC = () => {
           margin="normal"
           fullWidth
           required
+          error={!!validationErrors.lastName}
+          helperText={validationErrors.lastName}
         />
         <TextField
           label="Email"
@@ -67,6 +150,8 @@ const CreateUser: React.FC = () => {
           margin="normal"
           fullWidth
           required
+          error={!!validationErrors.email}
+          helperText={validationErrors.email}
         />
         <TextField
           label="Username"
@@ -76,6 +161,8 @@ const CreateUser: React.FC = () => {
           margin="normal"
           fullWidth
           required
+          error={!!validationErrors.username}
+          helperText={validationErrors.username}
         />
         <TextField
           label="Password"
@@ -86,6 +173,8 @@ const CreateUser: React.FC = () => {
           margin="normal"
           fullWidth
           required
+          error={!!validationErrors.password}
+          helperText={validationErrors.password}
         />
         <TextField
           label="Phone"
@@ -94,6 +183,8 @@ const CreateUser: React.FC = () => {
           onChange={handleChange}
           margin="normal"
           fullWidth
+          error={!!validationErrors.phone}
+          helperText={validationErrors.phone}
         />
         <TextField
           label="Address Line 1"
@@ -153,6 +244,18 @@ const CreateUser: React.FC = () => {
           Create
         </Button>
       </Box>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+      <GlobalError error={globalError} onClose={() => setGlobalError(null)} />
     </Container>
   );
 };
