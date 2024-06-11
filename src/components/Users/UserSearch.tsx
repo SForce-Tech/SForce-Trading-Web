@@ -1,26 +1,57 @@
-// src\components\Users\UserSearch.tsx
-
+// src/components/Users/UserSearch.tsx
 import React, { useState } from "react";
-import { TextField, Button, Container, Typography, Box } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import { findUserByEmail } from "../../api";
 import { User } from "../../types/User";
+import GlobalError from "../Error/GlobalError";
 
 const UserSearch: React.FC = () => {
   const [email, setEmail] = useState("");
   const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "error"
+  );
+  const [globalError, setGlobalError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    setValidationError(null);
+
+    // Validate email
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      setValidationError("Invalid email format");
+      return;
+    }
+
     try {
       const userData = await findUserByEmail(email);
       setUser(userData);
-      setError(null);
+      setSnackbarMessage("User found");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setValidationError(null);
     } catch (err) {
-      setError("User not found");
       setUser(null);
+      setSnackbarMessage("User not found");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
       console.error("Search user error:", err);
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -38,6 +69,8 @@ const UserSearch: React.FC = () => {
           margin="normal"
           fullWidth
           required
+          error={!!validationError}
+          helperText={validationError}
         />
         <Button
           type="submit"
@@ -48,11 +81,6 @@ const UserSearch: React.FC = () => {
         >
           Search
         </Button>
-        {error && (
-          <Typography color="error" variant="body2">
-            {error}
-          </Typography>
-        )}
         {user && (
           <Box mt={2}>
             <Typography variant="body1">
@@ -68,6 +96,17 @@ const UserSearch: React.FC = () => {
           </Box>
         )}
       </Box>
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+      <GlobalError error={globalError} onClose={() => setGlobalError(null)} />
     </Container>
   );
 };
