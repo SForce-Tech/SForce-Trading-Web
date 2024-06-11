@@ -1,10 +1,13 @@
+// src\components\Users\UserSearch.tsx
+
 import React, { useState } from "react";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import { findUserByEmail } from "../../api";
+import { User } from "../../types/User";
 
 const UserSearch: React.FC = () => {
   const [email, setEmail] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {

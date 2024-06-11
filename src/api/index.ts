@@ -1,4 +1,6 @@
+// src/api/index.ts
 import axios from "axios";
+import { User, CreateUserDTO } from "../types/User";
 
 const apiClient = axios.create({
   baseURL: "https://localhost:8443/api",
@@ -19,12 +21,15 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export const login = async (username: string, password: string) => {
+export const login = async (
+  username: string,
+  password: string
+): Promise<string> => {
   const response = await apiClient.post("/users/login", { username, password });
   return response.data;
 };
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (): Promise<User[]> => {
   try {
     const response = await apiClient.get("/users/listAll");
     return response.data;
@@ -34,34 +39,31 @@ export const getAllUsers = async () => {
   }
 };
 
-export const findUserByEmail = async (email: string) => {
+export const findUserByEmail = async (email: string): Promise<User> => {
   const response = await apiClient.get("/users/find", { params: { email } });
   return response.data;
 };
 
-export const createUser = async (user: any) => {
+export const createUser = async (user: CreateUserDTO): Promise<User> => {
   const response = await apiClient.post("/users/register", user);
   return response.data;
 };
 
-export const updateUser = async (user: any) => {
-  console.log("Updating user:", user);
-
+export const updateUser = async (user: User): Promise<User> => {
   const response = await apiClient.put("/users/update", user);
   return response.data;
 };
 
-export const deleteUser = async (userId: number) => {
+export const deleteUser = async (userId: number): Promise<void> => {
   await apiClient.delete(`/users/delete/${userId}`);
 };
 
-// Fetch the public key from the server
-export const fetchPublicKey = async () => {
+export const fetchPublicKey = async (): Promise<string> => {
   const response = await apiClient.get("/public-key");
   return response.data;
 };
 
-export const logout = async () => {
+export const logout = async (): Promise<void> => {
   await apiClient.post("/logout");
   sessionStorage.removeItem("token");
 };

@@ -25,13 +25,14 @@ import {
 import { getAllUsers, deleteUser, updateUser } from "../../api";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { User } from "../../types/User";
 
 const UserList: React.FC = () => {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -57,17 +58,18 @@ const UserList: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const handleEdit = (user: any) => {
+  const handleEdit = (user: User) => {
     setSelectedUser(user);
     setOpenEditDialog(true);
   };
 
-  const handleDelete = (user: any) => {
+  const handleDelete = (user: User) => {
     setSelectedUser(user);
     setOpenDeleteDialog(true);
   };
 
   const handleEditSubmit = async () => {
+    if (!selectedUser) return;
     try {
       await updateUser(selectedUser);
       const updatedUsers = users.map((user) =>
@@ -87,6 +89,7 @@ const UserList: React.FC = () => {
   };
 
   const handleDeleteConfirm = async () => {
+    if (!selectedUser || selectedUser.id === undefined) return;
     try {
       await deleteUser(selectedUser.id);
       const updatedUsers = users.filter((user) => user.id !== selectedUser.id);
@@ -201,6 +204,7 @@ const UserList: React.FC = () => {
             <TextField
               label="Email"
               name="email"
+              type="email"
               value={selectedUser.email}
               onChange={(e) =>
                 setSelectedUser({ ...selectedUser, email: e.target.value })

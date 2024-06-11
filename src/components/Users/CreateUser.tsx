@@ -1,9 +1,11 @@
+// src/components/Users/CreateUser.tsx
 import React, { useState } from "react";
 import { TextField, Button, Container, Typography, Box } from "@mui/material";
 import { createUser } from "../../api";
+import { CreateUserDTO } from "../../types/User";
 
 const CreateUser: React.FC = () => {
-  const [user, setUser] = useState({
+  const [user, setUser] = useState<CreateUserDTO>({
     firstName: "",
     lastName: "",
     email: "",
@@ -17,8 +19,6 @@ const CreateUser: React.FC = () => {
     zipCode: "",
     country: "",
   });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -28,12 +28,9 @@ const CreateUser: React.FC = () => {
     e.preventDefault();
     try {
       await createUser(user);
-      setSuccess("User created successfully!");
-      setError(null);
-    } catch (err) {
-      setError("Failed to create user");
-      setSuccess(null);
-      console.error("Create user error:", err);
+      // handle success (e.g., show a success message, clear form, etc.)
+    } catch (error) {
+      // handle error (e.g., show an error message)
     }
   };
 
@@ -41,7 +38,7 @@ const CreateUser: React.FC = () => {
     <Container maxWidth="sm">
       <Box component="form" onSubmit={handleSubmit} mt={2}>
         <Typography variant="h6" gutterBottom>
-          Create User
+          Create New User
         </Typography>
         <TextField
           label="First Name"
@@ -146,16 +143,6 @@ const CreateUser: React.FC = () => {
           margin="normal"
           fullWidth
         />
-        {error && (
-          <Typography color="error" variant="body2">
-            {error}
-          </Typography>
-        )}
-        {success && (
-          <Typography color="primary" variant="body2">
-            {success}
-          </Typography>
-        )}
         <Button
           type="submit"
           variant="contained"
@@ -163,7 +150,7 @@ const CreateUser: React.FC = () => {
           fullWidth
           sx={{ mt: 2 }}
         >
-          Create User
+          Create
         </Button>
       </Box>
     </Container>

@@ -1,4 +1,6 @@
-import React from 'react';
+// src\components\Users\Permissions.tsx
+
+import React from "react";
 
 const Permissions: React.FC = () => {
   return (

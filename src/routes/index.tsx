@@ -1,3 +1,5 @@
+// src\routes\index.tsx
+
 import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginForm from "../components/Auth/LoginForm";

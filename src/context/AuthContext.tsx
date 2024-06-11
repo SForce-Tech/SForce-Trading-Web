@@ -2,8 +2,8 @@ import React, { createContext, useState, ReactNode } from "react";
 import axios from "axios";
 
 interface AuthContextProps {
-  authData: any;
-  setAuthData: (data: any) => void;
+  authData: string | null;
+  setAuthData: (data: string | null) => void;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -20,12 +20,12 @@ export const AuthContext = createContext<AuthContextProps>({
 });
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [authData, setAuthData] = useState<any>(
+  const [authData, setAuthData] = useState<string | null>(
     sessionStorage.getItem("token")
   );
 
-  const setAuth = (data: any) => {
-    sessionStorage.setItem("token", data);
+  const setAuth = (data: string | null) => {
+    sessionStorage.setItem("token", data || "");
     setAuthData(data);
   };
 
