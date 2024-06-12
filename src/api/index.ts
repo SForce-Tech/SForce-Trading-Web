@@ -46,6 +46,13 @@ export const findUserByEmail = async (email: string): Promise<User> => {
   return response.data;
 };
 
+export const findUserByUsername = async (username: string): Promise<User> => {
+  const response = await apiClient.get("/users/getUser", {
+    params: { username },
+  });
+  return response.data;
+};
+
 export const createUser = async (user: CreateUserDTO): Promise<User> => {
   const response = await apiClient.post("/users/register", user);
   return response.data;
@@ -53,6 +60,18 @@ export const createUser = async (user: CreateUserDTO): Promise<User> => {
 
 export const updateUser = async (user: User): Promise<User> => {
   const response = await apiClient.put("/users/update", user);
+  return response.data;
+};
+
+export const updatePassword = async (
+  userId: number,
+  currentPassword: string,
+  newPassword: string
+): Promise<string> => {
+  const response = await apiClient.put(`/users/updatePassword/${userId}`, {
+    currentPassword,
+    newPassword,
+  });
   return response.data;
 };
 
