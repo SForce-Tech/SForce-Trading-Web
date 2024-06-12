@@ -26,3 +26,6 @@ package-lock.json
 
 # Certificates
 /certs
+
+# Package lock
+package-lock.json

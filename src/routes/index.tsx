@@ -1,11 +1,11 @@
-// src\routes\index.tsx
-
+// src/routes/index.tsx
 import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginForm from "../components/Auth/LoginForm";
 import HomePage from "../pages/HomePage";
 import SetupPage from "../pages/SetupPage";
 import ManageUsersPage from "../pages/ManageUsersPage";
+import UserProfilePage from "../pages/UserProfilePage";
 import PrivateRoute from "./PrivateRoute";
 import Header from "../components/Layout/Header";
 import { AuthContext } from "../context/AuthContext";
@@ -22,6 +22,7 @@ const AppRoutes: React.FC = () => {
           <Route path="home" element={<HomePage />} />
           <Route path="setup" element={<SetupPage />} />
           <Route path="manage-users" element={<ManageUsersPage />} />
+          <Route path="profile" element={<UserProfilePage />} />
         </Route>
       </Routes>
     </Router>
