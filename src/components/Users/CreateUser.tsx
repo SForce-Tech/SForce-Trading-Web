@@ -37,7 +37,6 @@ const CreateUser: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "error"
   );
-  const [globalError, setGlobalError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -255,7 +254,7 @@ const CreateUser: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      <GlobalError error={globalError} onClose={() => setGlobalError(null)} />
+      <GlobalError />
     </Container>
   );
 };

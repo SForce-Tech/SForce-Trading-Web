@@ -1,63 +1,74 @@
 // src/components/Layout/Header.tsx
-import React, { useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Menu,
-  MenuItem,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import React, { useContext } from "react";
+import { AppBar, Toolbar, Typography, IconButton } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
+import { Home } from "@mui/icons-material";
 
-const Header: React.FC = () => {
-  const { logout } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+interface HeaderProps {
+  open: boolean;
+  toggleDrawer: () => void;
+}
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleMenuClick = (path: string) => {
-    navigate(path);
-    handleMenuClose();
-  };
+const Header: React.FC<HeaderProps> = ({ open, toggleDrawer }) => {
+  const { authData, logout } = useContext(AuthContext);
 
   return (
-    <AppBar position="static">
+    <AppBar position="absolute">
       <Toolbar>
-        <Typography variant="h6" style={{ flexGrow: 1 }}>
+        {!open && (
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleDrawer}
+            edge="start"
+            sx={{ marginRight: 2 }}
+          >
+            <MenuIcon style={{ color: "white" }} />
+          </IconButton>
+        )}
+        <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
           GymBuddy
         </Typography>
-        <IconButton color="inherit" onClick={() => navigate("/profile")}>
-          <AccountCircleIcon />
-        </IconButton>
-        <IconButton color="inherit" onClick={handleMenuOpen}>
-          <SettingsIcon />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={() => handleMenuClick("/manage-users")}>
-            User Management
-          </MenuItem>
-          {/* Future options can be added here */}
-        </Menu>
-        <IconButton color="inherit" onClick={logout}>
-          <LogoutIcon />
-        </IconButton>
+        {authData && (
+          <>
+            <IconButton
+              color="inherit"
+              aria-label="home button"
+              component={Link}
+              to="/home"
+            >
+              <Home />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              aria-label="profile button"
+              component={Link}
+              to="/profile"
+            >
+              <AccountCircleIcon />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              aria-label="setup button"
+              component={Link}
+              to="/setup"
+            >
+              <SettingsIcon />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              aria-label="logout button"
+              onClick={logout}
+            >
+              <LogoutIcon />
+            </IconButton>
+          </>
+        )}
       </Toolbar>
     </AppBar>
   );

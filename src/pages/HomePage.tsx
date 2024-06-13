@@ -1,38 +1,74 @@
-// src\pages\HomePage.tsx
-
-import React, { useContext } from "react";
-import { Container, Typography, Button, Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+// src/pages/HomePage.tsx
+import React from "react";
+import { Container, Grid, Paper, Typography } from "@mui/material";
 
 const HomePage: React.FC = () => {
-  const navigate = useNavigate();
-  const { logout } = useContext(AuthContext);
-
   return (
-    <Container>
-      <Box mt={5}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Welcome to the Home Page
-        </Typography>
-        <Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate("/setup")}
-          >
-            Setup
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={logout}
-            sx={{ ml: 2 }}
-          >
-            Logout
-          </Button>
-        </Box>
-      </Box>
+    <Container maxWidth="lg">
+      <Grid container spacing={3}>
+        {/* Today's Section */}
+        <Grid item xs={12} md={8} lg={9}>
+          <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+            <Typography variant="h6" gutterBottom>
+              Today
+            </Typography>
+            {/* Placeholder for Chart */}
+            <div style={{ width: "100%", flexGrow: 1, overflow: "hidden" }}>
+              {/* Chart component or SVG goes here */}
+            </div>
+          </Paper>
+        </Grid>
+
+        {/* Recent Deposits */}
+        <Grid item xs={12} md={4} lg={3}>
+          <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+            <Typography variant="h6" gutterBottom>
+              Recent Deposits
+            </Typography>
+            <Typography variant="h4">$3,024.00</Typography>
+            <Typography color="textSecondary">on 15 March, 2019</Typography>
+            <div>
+              <Typography component="a" href="#" color="primary">
+                View balance
+              </Typography>
+            </div>
+          </Paper>
+        </Grid>
+
+        {/* Recent Orders */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
+            <Typography variant="h6" gutterBottom>
+              Recent Orders
+            </Typography>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Ship To</th>
+                  <th>Payment Method</th>
+                  <th>Sale Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* Example orders */}
+                <tr>
+                  <td>16 Mar, 2019</td>
+                  <td>Elvis Presley</td>
+                  <td>Tupelo, MS</td>
+                  <td>VISA •••• 3719</td>
+                  <td>$312.44</td>
+                </tr>
+                {/* Add more rows as needed */}
+              </tbody>
+            </table>
+            <Typography component="a" href="#" color="primary">
+              See more orders
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
     </Container>
   );
 };

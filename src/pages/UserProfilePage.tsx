@@ -1,3 +1,4 @@
+// src/components/Users/UserProfilePage.tsx
 import React, { useState, useContext, useEffect, useMemo } from "react";
 import {
   Container,
@@ -40,7 +41,7 @@ const UserProfilePage: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "error"
   );
-  const [globalError, setGlobalError] = useState<string | null>(null);
+  const [, setGlobalError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
   }>({});
@@ -311,7 +312,7 @@ const UserProfilePage: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      <GlobalError error={globalError} onClose={() => setGlobalError(null)} />
+      <GlobalError />
     </Container>
   );
 };

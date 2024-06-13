@@ -43,7 +43,7 @@ const UserList: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "error"
   );
-  const [globalError, setGlobalError] = useState<string | null>(null);
+  const [, setGlobalError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
   }>({});
@@ -232,7 +232,7 @@ const UserList: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      <GlobalError error={globalError} onClose={() => setGlobalError(null)} />
+      <GlobalError />
     </Container>
   );
 };

@@ -1,13 +1,19 @@
-// src\App.tsx
-
 import React from "react";
 import AppRoutes from "./routes";
+import ErrorBoundary from "./components/Error/ErrorBoundary";
+import GlobalError from "./components/Error/GlobalError";
+import { ErrorProvider } from "./context/ErrorContext";
 
 const App: React.FC = () => {
   return (
-    <div className="App">
-      <AppRoutes />
-    </div>
+    <ErrorProvider>
+      <ErrorBoundary>
+        <div className="App">
+          <AppRoutes />
+          <GlobalError />
+        </div>
+      </ErrorBoundary>
+    </ErrorProvider>
   );
 };
 
