@@ -22,7 +22,6 @@ const UserSearch: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "error"
   );
-  const [globalError, setGlobalError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +105,7 @@ const UserSearch: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      <GlobalError error={globalError} onClose={() => setGlobalError(null)} />
+      <GlobalError />
     </Container>
   );
 };

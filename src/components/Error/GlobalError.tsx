@@ -1,16 +1,17 @@
-// src/components/GlobalError.tsx
 import React from "react";
 import { Snackbar, Alert } from "@mui/material";
+import { useError } from "../../context/ErrorContext";
 
-interface GlobalErrorProps {
-  error: string | null;
-  onClose: () => void;
-}
+const GlobalError: React.FC = () => {
+  const { error, setError } = useError();
 
-const GlobalError: React.FC<GlobalErrorProps> = ({ error, onClose }) => {
+  const handleClose = () => {
+    setError(null);
+  };
+
   return (
-    <Snackbar open={!!error} autoHideDuration={6000} onClose={onClose}>
-      <Alert onClose={onClose} severity="error">
+    <Snackbar open={!!error} autoHideDuration={6000} onClose={handleClose}>
+      <Alert onClose={handleClose} severity="error">
         {error}
       </Alert>
     </Snackbar>
