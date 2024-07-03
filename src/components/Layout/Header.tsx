@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ open, toggleDrawer }) => {
           </IconButton>
         )}
         <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
-          GymBuddy
+          SForceTrading
         </Typography>
         {authData && (
           <>

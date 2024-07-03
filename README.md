@@ -1,8 +1,8 @@
-# GymBuddy Web Application
+# SForceTrading Web Application
 
 ## Overview
 
-GymBuddy is a web application designed to manage user profiles, track orders, view reports, and handle various integrations. The application is built using React, TypeScript, and Material-UI (MUI) for the UI components.
+SForceTrading is a web application designed to manage user profiles, track orders, view reports, and handle various integrations. The application is built using React, TypeScript, and Material-UI (MUI) for the UI components.
 
 ## Features
 
@@ -80,9 +80,9 @@ GymBuddy is a web application designed to manage user profiles, track orders, vi
 
 ## Backend Dependency
 
-This web application requires the GymBuddy backend application to be running. The backend is built using Java Spring Boot and provides the necessary REST APIs for this web client.
+This web application requires the SForceTrading backend application to be running. The backend is built using Java Spring Boot and provides the necessary REST APIs for this web client.
 
-- **Backend Repository**: [GymBuddy Spring Boot Application](https://github.com/SForce-Tech/gymbuddy)
+- **Backend Repository**: [SForceTrading Spring Boot Application](https://github.com/SForce-Tech/SForceTrading)
 - **API Documentation**: Available in the backend repository.
 
 ## Getting Started
@@ -91,17 +91,17 @@ This web application requires the GymBuddy backend application to be running. Th
 
 - Node.js and npm installed
 - React development environment setup
-- Running instance of the GymBuddy backend application
+- Running instance of the SForceTrading backend application
 
 ### Installation
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-repo/gymbuddy-web.git
+   git clone https://github.com/your-repo/SForceTrading-web.git
    ```
 2. Navigate to the project directory:
    ```sh
-   cd gymbuddy-web
+   cd SForceTrading-web
    ```
 3. Install dependencies:
    ```sh
@@ -110,7 +110,7 @@ This web application requires the GymBuddy backend application to be running. Th
 
 ### Running the Application
 
-1. Ensure the GymBuddy backend application is running.
+1. Ensure the SForceTrading backend application is running.
 2. Start the web application:
    ```sh
    npm start
