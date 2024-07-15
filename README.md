@@ -19,23 +19,70 @@ SForceTrading is a web application designed to manage user profiles, track order
 ```
 .
 |-- README.md
+|-- certs
+|   |-- localhost.crt
+|   |-- localhost.csr
+|   `-- localhost.key
 |-- package-lock.json
 |-- package.json
 |-- public
+|   |-- favicon.ico
+|   |-- index.html
+|   |-- logo192.png
+|   |-- logo512.png
+|   |-- manifest.json
+|   `-- robots.txt
 |-- src
+|   |-- App.css
+|   |-- App.test.tsx
+|   |-- App.tsx
 |   |-- api
+|   |   `-- index.ts
 |   |-- assets
+|   |   |-- images
+|   |   `-- styles
 |   |-- components
 |   |   |-- Auth
+|   |   |   |-- LoginForm.tsx
+|   |   |   `-- Logout.tsx
 |   |   |-- Error
+|   |   |   |-- ErrorBoundary.tsx
+|   |   |   `-- GlobalError.tsx
 |   |   |-- Layout
+|   |   |   |-- Drawer.tsx
+|   |   |   `-- Header.tsx
 |   |   `-- Users
+|   |       |-- CreateUser.tsx
+|   |       |-- DeleteUserDialog.tsx
+|   |       |-- EditUserDialog.tsx
+|   |       |-- Permissions.tsx
+|   |       |-- UserList.tsx
+|   |       `-- UserSearch.tsx
 |   |-- context
+|   |   |-- AuthContext.tsx
+|   |   `-- ErrorContext.tsx
 |   |-- hooks
+|   |   `-- useApi.ts
+|   |-- index.css
+|   |-- index.tsx
+|   |-- logo.svg
 |   |-- pages
+|   |   |-- HomePage.tsx
+|   |   |-- LoginPage.tsx
+|   |   |-- ManageUsersPage.tsx
+|   |   |-- SetupPage.tsx
+|   |   |-- UserPage.tsx
+|   |   `-- UserProfilePage.tsx
+|   |-- react-app-env.d.ts
+|   |-- reportWebVitals.ts
 |   |-- routes
+|   |   |-- PrivateRoute.tsx
+|   |   `-- index.tsx
 |   |-- services
+|   |-- setupTests.ts
+|   |-- theme.ts
 |   |-- types
+|   |   `-- User.ts
 |   `-- utils
 `-- tsconfig.json
 ```

@@ -1,6 +1,7 @@
 // src/api/index.ts
 import axios from "axios";
 import { User, CreateUserDTO } from "../types/User";
+import { Credential } from "../types/Credential";
 
 const apiClient = axios.create({
   baseURL: "https://localhost:8443/api",
@@ -87,4 +88,24 @@ export const fetchPublicKey = async (): Promise<string> => {
 export const logout = async (): Promise<void> => {
   await apiClient.post("/logout");
   sessionStorage.removeItem("token");
+};
+
+export const createCredential = async (credential: Credential) => {
+  const response = await apiClient.post("/credentials", credential);
+  return response.data;
+};
+
+export const fetchCredentials = async (userId: number) => {
+  const response = await apiClient.get(`/credentials/user/${userId}`);
+  return response.data;
+};
+
+export const updateCredential = async (id: number, credential: Credential) => {
+  const response = await apiClient.put(`/credentials/${id}`, credential);
+  return response.data;
+};
+
+export const deleteCredential = async (id: number) => {
+  const response = await apiClient.delete(`/credentials/${id}`);
+  return response.data;
 };

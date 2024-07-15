@@ -1,4 +1,3 @@
-// src/components/Users/UserProfilePage.tsx
 import React, { useState, useContext, useEffect, useMemo } from "react";
 import {
   Container,
@@ -24,9 +23,20 @@ import EditUserDialog from "../components/Users/EditUserDialog";
 import GlobalError from "../components/Error/GlobalError";
 import useApi from "../hooks/useApi";
 import { jwtDecode } from "jwt-decode";
-import { updateUser, updatePassword } from "../api";
+import {
+  updateUser,
+  updatePassword,
+  fetchPublicKey,
+  createCredential,
+  fetchCredentials,
+  updateCredential,
+  deleteCredential,
+} from "../api";
 import { User } from "../types/User";
+import { Credential } from "../types/Credential";
 import axios from "axios";
+import JSEncrypt from "jsencrypt";
+import ManageCredentialDialog from "../components/Users/ManageCredentialDialog";
 
 const UserProfilePage: React.FC = () => {
   const { authData } = useContext(AuthContext);
@@ -45,14 +55,24 @@ const UserProfilePage: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
   }>({});
+  const [publicKey, setPublicKey] = useState<string | null>(null);
+  const [credentials, setCredentials] = useState<Credential[]>([]);
+  const [selectedCredential, setSelectedCredential] =
+    useState<Credential | null>(null);
+  const [openCredentialDialog, setOpenCredentialDialog] = useState(false);
+
+  interface DecodedToken {
+    userId: number;
+    [key: string]: any;
+  }
 
   const userApiConfig = useMemo(() => {
     if (authData) {
-      const decodedToken: any = jwtDecode(authData);
-      const username = decodedToken.sub;
+      const decodedToken: DecodedToken = jwtDecode(authData) as DecodedToken;
+      const userId = decodedToken.userId;
       return {
         method: "GET",
-        url: `/users/getUser?username=${username}`,
+        url: `/users/getUserById?id=${userId}`,
       };
     }
     return { method: "GET", url: "/placeholder" };
@@ -68,6 +88,10 @@ const UserProfilePage: React.FC = () => {
   useEffect(() => {
     if (authData) {
       fetchUserData();
+      fetchPublicKey().then(setPublicKey).catch(console.error);
+      const decodedToken: DecodedToken = jwtDecode(authData) as DecodedToken;
+      const userId = decodedToken.userId;
+      fetchCredentials(userId).then(setCredentials).catch(console.error);
     }
   }, [authData, fetchUserData]);
 
@@ -86,18 +110,12 @@ const UserProfilePage: React.FC = () => {
 
   const validateFields = (user: User): boolean => {
     const errors: { [key: string]: string } = {};
-
-    // Validate email
     if (!user.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       errors.email = "Invalid email format";
     }
-
-    // Validate phone number (simple example, you might need a more complex validation)
     if (user.phone && !user.phone.match(/^\d{10}$/)) {
       errors.phone = "Phone number should be 10 digits";
     }
-
-    // Validate required fields
     if (!user.firstName) {
       errors.firstName = "First name is required";
     }
@@ -107,19 +125,15 @@ const UserProfilePage: React.FC = () => {
     if (!user.username) {
       errors.username = "Username is required";
     }
-
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleEditSubmit = async () => {
     if (!user) return;
-
-    // Validate fields before submitting
     if (!validateFields(user)) {
       return;
     }
-
     try {
       await updateUser(user);
       fetchUserData();
@@ -142,7 +156,6 @@ const UserProfilePage: React.FC = () => {
       setSnackbarOpen(true);
       return;
     }
-
     try {
       if (user && user.id !== undefined) {
         await updatePassword(user.id, currentPassword, password);
@@ -163,6 +176,71 @@ const UserProfilePage: React.FC = () => {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       console.error("Update password error:", err);
+    }
+  };
+
+  const handleAddCredential = () => {
+    setSelectedCredential(null);
+    setOpenCredentialDialog(true);
+  };
+
+  const handleEditCredential = (credential: Credential) => {
+    setSelectedCredential(credential);
+    setOpenCredentialDialog(true);
+  };
+
+  const handleDeleteCredential = async (id: number) => {
+    try {
+      await deleteCredential(id);
+      const decodedToken: DecodedToken = jwtDecode(
+        authData as string
+      ) as DecodedToken;
+      const userId = decodedToken.userId;
+      fetchCredentials(userId).then(setCredentials);
+      setSnackbarMessage("Credential deleted successfully");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (err) {
+      setSnackbarMessage("Failed to delete credential");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      console.error("Delete credential error:", err);
+    }
+  };
+
+  const handleSaveCredential = async (credential: Credential) => {
+    try {
+      const decodedToken: DecodedToken = jwtDecode(
+        authData as string
+      ) as DecodedToken;
+      const userId = decodedToken.userId;
+      credential.userId = userId; // Set the userId in the credential object
+
+      if (publicKey) {
+        const encrypt = new JSEncrypt();
+        encrypt.setPublicKey(publicKey);
+        credential.consumerKey = encrypt.encrypt(
+          credential.consumerKey
+        ) as string;
+        credential.consumerSecret = encrypt.encrypt(
+          credential.consumerSecret
+        ) as string;
+      }
+      if (selectedCredential) {
+        await updateCredential(selectedCredential.id as number, credential);
+      } else {
+        await createCredential(credential);
+      }
+      fetchCredentials(userId).then(setCredentials);
+      setOpenCredentialDialog(false);
+      setSnackbarMessage("Credential saved successfully");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (err) {
+      setSnackbarMessage("Failed to save credential");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      console.error("Save credential error:", err);
     }
   };
 
@@ -233,6 +311,13 @@ const UserProfilePage: React.FC = () => {
             >
               Change Password
             </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddCredential}
+            >
+              Manage OAuth Credentials
+            </Button>
           </CardActions>
         </Card>
       )}
@@ -301,6 +386,55 @@ const UserProfilePage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Manage Credential Dialog */}
+      <ManageCredentialDialog
+        open={openCredentialDialog}
+        onClose={() => setOpenCredentialDialog(false)}
+        onSave={handleSaveCredential}
+        credential={selectedCredential}
+      />
+
+      {/* List of Credentials */}
+      {credentials.length > 0 && (
+        <Box mt={4}>
+          <Typography variant="h6" gutterBottom>
+            OAuth Credentials
+          </Typography>
+          {credentials.map((credential) => (
+            <Card key={credential.id} sx={{ mb: 2 }}>
+              <CardContent>
+                <Typography variant="body1">
+                  <strong>Consumer Key:</strong> {credential.consumerKey}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Sandbox:</strong>{" "}
+                  {credential.isSandbox ? "Yes" : "No"}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Active:</strong> {credential.isActive ? "Yes" : "No"}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleEditCredential(credential)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => handleDeleteCredential(credential.id!)}
+                >
+                  Delete
+                </Button>
+              </CardActions>
+            </Card>
+          ))}
+        </Box>
+      )}
 
       {/* Snackbar for notifications */}
       <Snackbar
